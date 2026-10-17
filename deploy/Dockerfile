@@ -1,14 +1,14 @@
 # ==========================================
 # 阶段1：构建后端
 # ==========================================
-# 使用阿里云同步的 Maven 镜像，加速拉取
-FROM registry.cn-hangzhou.aliyuncs.com/k8s/maven:3.8-jdk-8 AS build
+# 使用 DaoCloud 加速源拉取 Maven 镜像
+FROM docker.m.daocloud.io/library/maven:3.8-jdk-8 AS build
 WORKDIR /build
 
 # 把代码复制进容器
 COPY . /build
 
-# 配置 Maven 使用阿里云镜像源，极大加速依赖下载
+# 配置 Maven 使用阿里云镜像源，加速依赖下载
 RUN mkdir -p /root/.m2 && echo '<settings><mirrors><mirror><id>aliyunmaven</id><mirrorOf>*</mirrorOf><name>阿里云公共仓库</name><url>https://maven.aliyun.com/repository/public</url></mirror></mirrors></settings>' > /root/.m2/settings.xml
 
 # 执行 Maven 打包
@@ -18,8 +18,8 @@ RUN mvn clean package -DskipTests
 # ==========================================
 # 阶段2：运行环境（Java 8 + nginx + supervisor）
 # ==========================================
-# 同样使用阿里云同步的 JDK 镜像
-FROM registry.cn-hangzhou.aliyuncs.com/k8s/eclipse-temurin:8-jre
+# 同样使用 DaoCloud 加速源拉取 JDK 镜像
+FROM docker.m.daocloud.io/library/eclipse-temurin:8-jre
 
 # 替换 Debian 系统源为阿里云源，并安装 Nginx 和 Supervisor
 RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list \
